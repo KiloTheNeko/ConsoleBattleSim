@@ -13,6 +13,53 @@
             Unit.Combat(Herakles, Merlin);
         }
 
+        class Battallion
+        {
+            public Battallion(List<Unit> _Units)
+            {
+                this.Units = _Units;
+                this.Name = this.GetType().Name;
+                this.Atk = _Units[0].Atk * _Units.Count;
+                this.Defense = _Units[0].Defense * _Units.Count;
+                this.Health = _Units[0].Health * _Units.Count;
+                this.Variance = _Units[0].Variance * _Units.Count;
+                this.Speed = _Units[0].Speed * _Units.Count;
+            }
+
+            public int Atk { get; set; }
+
+            public int Defense { get; set; }
+
+            public int Health { get; set; }
+
+            public string Name { get; set; }
+
+            public int Speed { get; set; }
+
+            public int Variance { get; set; }
+
+            List<Unit> Units { get; set; }
+
+            static public void Combat(Battallion Defender, Battallion Attacker)
+            {
+                while (Defender.Health > 0 && Attacker.Health > 0)
+                {
+                    Console.WriteLine($"{Attacker.Name} attacks {Defender.Name}");
+                    Attacker.Attack(Defender, Attacker);
+                    Console.WriteLine($"Defender has: {Defender.Health} health and {Defender.Units.Count} units");
+                    Console.WriteLine($"{Defender.Name} counterattacks {Attacker.Name}");
+                    Defender.Attack(Attacker, Defender);
+                    Console.WriteLine($"Defender has: {Attacker.Health} health and {Attacker.Units.Count} units");
+                }
+            }
+
+            public void Attack(Battallion Defender, Battallion Attacker)
+            {
+                Unit DefenderLeader = Defender.Units[Units.Count];
+                Unit AttackerLeader = Attacker.Units[Units.Count];
+            }
+        }
+
         class Mage : Unit
         {
             public Mage()
