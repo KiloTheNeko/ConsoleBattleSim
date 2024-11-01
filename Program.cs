@@ -8,9 +8,12 @@
 
             Console.WriteLine("Hello, World!");
 
-            Warrior Herakles = new();
-            Mage Merlin = new();
-            Unit.Combat(Herakles, Merlin);
+            Warrior Herakles = new("Herakles");
+            Mage Merlin = new("Merlin");
+            //Unit.Combat(Herakles, Merlin);
+            Battallion Warriors = new Battallion(Herakles, 10, "Warriors");
+            Battallion Defenders = new Battallion(Merlin, 10, "Mages");
+            Battallion.Combat(Defenders, Warriors);
         }
         class Army
         {
@@ -18,14 +21,16 @@
         }
         class Battallion
         {
-            public Battallion(Unit _Units, int _Unit_amount)
+            public Battallion(Unit _Units, int _Unit_amount, string _name)
             {
                 this.Units = _Units;
-                this.Name = this.GetType().Name;
+                this.Name = _name;
                 this.Atk = _Units.Atk * _Unit_amount;
                 this.Defense = _Units.Defense * _Unit_amount;
                 this.Health = _Units.Health * _Unit_amount;
                 this.Speed = _Units.Speed * _Unit_amount;
+                this.Unit_amount = _Unit_amount;
+                Console.WriteLine($"{this.Name} has been created. with {_Unit_amount} {_Units.Name} giving {this.Atk} attack, {this.Defense} defense, {this.Health} health and {this.Speed} speed");
             }
 
             public int Atk { get; set; }
@@ -53,29 +58,44 @@
                     Defender.Attack(Attacker, Defender);
                     Console.WriteLine($"Defender has: {Attacker.Health} health and {Attacker.Unit_amount} units");
                 }
+                if (Defender.Health <= 0 && Defender.Unit_amount <= 0)
+                {
+                    Console.WriteLine($"{Defender.Name} Loses.");
+                }
+                else if (Attacker.Health <= 0 && Attacker.Unit_amount <= 0)
+                {
+                    Console.WriteLine($"{Attacker.Name} Loses.");
+                }
             }
 
             public void Attack(Battallion Defender, Battallion Attacker)
             {
-                int damage = this.Units.Calculate_attack() - Defender.Defense;
-                if (damage < 0)
+                int damage = Attacker.Units.Calculate_attack();
+                damage *= Attacker.Unit_amount;
+                Console.WriteLine($"rolled {damage}");
+                if (damage <= 0)
                 {
                     damage = 1;
                 }
                 Defender.Health -= damage;
                 Console.WriteLine($"{Attacker.Name} does {damage} damage to {Defender.Name}");
-                Defender.Unit_amount -= damage/this.Units.Health;
-                Defender.Atk = Defender.Units.Atk * Defender.Unit_amount;
-                Defender.Defense = Defender.Units.Defense * Defender.Unit_amount;
-                Defender.Health = Defender.Units.Health * Defender.Unit_amount;
-                Defender.Speed = Defender.Speed * Defender.Unit_amount;
+                if (Defender.Unit_amount > 1)
+                {
+                    Defender.Atk = Defender.Units.Atk;
+                    Defender.Defense = Defender.Units.Defense;
+                    Defender.Unit_amount -= damage/Defender.Units.Health;
+                    Defender.Speed = Defender.Speed;
+                }
+                if (Defender.Health <= 0) { Defender.Unit_amount = 0; }
+
             }
         }
 
         class Mage : Unit
         {
-            public Mage()
+            public Mage(string name): base(name)
             {
+                this.Name = name;
                 this.Atk = 3;
                 this.Defense = 2;
                 this.Health = 10;
@@ -126,7 +146,7 @@
         abstract class Unit
 
         {
-            public Unit()
+            public Unit(string name)
             {
                 this.Name = this.GetType().Name;
                 this.Atk = 0;
@@ -165,13 +185,16 @@
             }
 
             public abstract void Attack(Unit Defender, Unit Attacker);
-            public abstract int Calculate_attack();
+            public virtual int Calculate_attack() {
+                return Atk;
+            }
         }
 
         class Warrior : Unit
         {
-            public Warrior()
+            public Warrior(string name) : base(name)
             {
+                this.Name = name;
                 this.Atk = 5;
                 this.Defense = 3;
                 this.Health = 20;
