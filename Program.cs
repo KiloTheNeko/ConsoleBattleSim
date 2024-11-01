@@ -12,18 +12,21 @@
             Mage Merlin = new();
             Unit.Combat(Herakles, Merlin);
         }
+        class Army
+        {
 
+        }
         class Battallion
         {
-            public Battallion(List<Unit> _Units)
+            public Battallion(Unit _Units, int _Unit_amount)
             {
                 this.Units = _Units;
                 this.Name = this.GetType().Name;
-                this.Atk = _Units[0].Atk * _Units.Count;
-                this.Defense = _Units[0].Defense * _Units.Count;
-                this.Health = _Units[0].Health * _Units.Count;
-                this.Variance = _Units[0].Variance * _Units.Count;
-                this.Speed = _Units[0].Speed * _Units.Count;
+                this.Atk = _Units.Atk * _Unit_amount;
+                this.Defense = _Units.Defense * _Unit_amount;
+                this.Health = _Units.Health * _Unit_amount;
+                this.Variance = _Units.Variance * _Unit_amount;
+                this.Speed = _Units.Speed * _Unit_amount;
             }
 
             public int Atk { get; set; }
@@ -38,7 +41,8 @@
 
             public int Variance { get; set; }
 
-            List<Unit> Units { get; set; }
+            Unit Units { get; set; }
+            public int Unit_amount { get; set; }
 
             static public void Combat(Battallion Defender, Battallion Attacker)
             {
@@ -46,17 +50,16 @@
                 {
                     Console.WriteLine($"{Attacker.Name} attacks {Defender.Name}");
                     Attacker.Attack(Defender, Attacker);
-                    Console.WriteLine($"Defender has: {Defender.Health} health and {Defender.Units.Count} units");
+                    Console.WriteLine($"Defender has: {Defender.Health} health and {Defender.Unit_amount} units");
                     Console.WriteLine($"{Defender.Name} counterattacks {Attacker.Name}");
                     Defender.Attack(Attacker, Defender);
-                    Console.WriteLine($"Defender has: {Attacker.Health} health and {Attacker.Units.Count} units");
+                    Console.WriteLine($"Defender has: {Attacker.Health} health and {Attacker.Unit_amount} units");
                 }
             }
 
             public void Attack(Battallion Defender, Battallion Attacker)
             {
-                Unit DefenderLeader = Defender.Units[Units.Count];
-                Unit AttackerLeader = Attacker.Units[Units.Count];
+
             }
         }
 
@@ -93,6 +96,21 @@
                     Defender.Health -= damage;
                     Console.WriteLine($"{Attacker.Name} does {damage} damage to {Defender.Name} using the missile");
                 }
+            }
+            public override int Calculate_attack()
+            {
+                Random random = new();
+                int negative = random.Next(0, 1) * 2 - 1;
+                int damage = Atk + (random.Next(0, this.Variance) * negative);
+                if (damage < 0)
+                {
+                    damage = 1;
+                }
+                if (this.Missiles > 0)
+                {
+                    damage += Atk;
+                }
+                return damage;
             }
         }
 
@@ -138,6 +156,7 @@
             }
 
             public abstract void Attack(Unit Defender, Unit Attacker);
+            public abstract int Calculate_attack();
         }
 
         class Warrior : Unit
@@ -162,6 +181,17 @@
                 }
                 Defender.Health -= damage;
                 Console.WriteLine($"{Attacker.Name} does {damage} damage to {Defender.Name}");
+            }
+            public override int Calculate_attack()
+            {
+                Random random = new();
+                int negative = random.Next(0, 1) * 2 - 1;
+                int damage = Atk + (random.Next(0, this.Variance) * negative);
+                if (damage < 0)
+                {
+                    damage = 1;
+                }
+                return damage;
             }
         }
     }
