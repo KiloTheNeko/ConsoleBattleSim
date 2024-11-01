@@ -25,7 +25,6 @@
                 this.Atk = _Units.Atk * _Unit_amount;
                 this.Defense = _Units.Defense * _Unit_amount;
                 this.Health = _Units.Health * _Unit_amount;
-                this.Variance = _Units.Variance * _Unit_amount;
                 this.Speed = _Units.Speed * _Unit_amount;
             }
 
@@ -39,7 +38,6 @@
 
             public int Speed { get; set; }
 
-            public int Variance { get; set; }
 
             Unit Units { get; set; }
             public int Unit_amount { get; set; }
@@ -59,7 +57,18 @@
 
             public void Attack(Battallion Defender, Battallion Attacker)
             {
-
+                int damage = this.Units.Calculate_attack() - Defender.Defense;
+                if (damage < 0)
+                {
+                    damage = 1;
+                }
+                Defender.Health -= damage;
+                Console.WriteLine($"{Attacker.Name} does {damage} damage to {Defender.Name}");
+                Defender.Unit_amount -= damage/this.Units.Health;
+                Defender.Atk = Defender.Units.Atk * Defender.Unit_amount;
+                Defender.Defense = Defender.Units.Defense * Defender.Unit_amount;
+                Defender.Health = Defender.Units.Health * Defender.Unit_amount;
+                Defender.Speed = Defender.Speed * Defender.Unit_amount;
             }
         }
 
