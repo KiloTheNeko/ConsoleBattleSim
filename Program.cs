@@ -1,4 +1,6 @@
-﻿namespace ConsoleBattleWars
+﻿using System.Security.Cryptography.X509Certificates;
+
+namespace ConsoleBattleWars
 {
     internal class Program
     {
@@ -13,11 +15,108 @@
             //Unit.Combat(Herakles, Merlin);
             Battallion Warriors = new Battallion(Herakles, 10, "Warriors");
             Battallion Defenders = new Battallion(Merlin, 10, "Mages");
-            Battallion.Combat(Defenders, Warriors);
+            //Battallion.Combat(Defenders, Warriors);
+
+            List<Battallion> Battallions = new List<Battallion>();
+            Battallions.Add(Warriors);
+            Battallions.Add(Defenders);
+            Army Army = new(Battallions, "Army");
+            Army Army2 = new(Battallions, "Army2");
+            Army.battle(Army, Army2);
+        }
+        class Hero
+        {
+            public string Name { get; set; }
+            public int atk { get; set; }
+            public int def { get; set; }
         }
         class Army
         {
+            List<Battallion> Battallions { get; set; }
+            Hero Leader { get; set; }
+            int Health { get; set; }
+            int Speed { get; set; }
+            string Name { get; set; }
+            public Army(List<Battallion> _Battallion, string _name)
+            {
+                this.Name = _name;
+                this.Battallions = _Battallion;
+                foreach (Battallion battallion in _Battallion)
+                {
+                    this.Health += battallion.Health;
+                    this.Speed += battallion.Speed;
+                }
 
+
+            }
+            public void Attack(Army Defender, Army Attacker)
+            {
+                int damage;
+                if (Attacker.Leader != null)
+                {
+                    damage = Attacker.Leader.atk;
+                }
+                else
+                {
+                    damage = 0;
+                }
+                foreach (Battallion battallion in this.Battallions)
+                {
+                    damage += battallion.Calculate_attack();
+                }
+                foreach (Battallion battallion in Defender.Battallions)
+                {
+                    if (Defender.Leader != null) { damage -= battallion.Defense + Defender.Leader.def; }
+                    else { damage -= battallion.Defense; }
+                }
+                if (damage <= 0)
+                {
+                    damage = 1;
+                }
+
+                if (Defender.Battallions.Count == 0)
+                {
+                    damage = 1;
+                }
+                else
+                {
+                    damage = damage / Defender.Battallions.Count;
+                }
+
+                for (int i = Defender.Battallions.Count - 1; i >= 0; i--)
+                {
+                    Battallion battallion = Defender.Battallions[i];
+                    battallion.Health -= damage;
+                    Console.WriteLine($"{Attacker.Name} does {damage} damage to {battallion.Name}");
+                    if (battallion.Health <= 0)
+                    {
+                        battallion.Unit_amount = 0;
+                        Console.WriteLine($"{battallion.Name} Perished.");
+                        Defender.Battallions.RemoveAt(i);
+                    }
+                }
+            }
+            public void battle(Army Defender, Army Attacker)
+            {
+                while (Defender.Battallions.Count > 0 && Attacker.Battallions.Count > 0)
+                {
+                    Console.WriteLine($"{Attacker.Name} attacks {Defender.Name}");
+                    Attacker.Attack(Defender, Attacker);
+                    Console.WriteLine($"Defender {Defender.Battallions.Count} units");
+                    Console.WriteLine($"{Defender.Name} counterattacks {Attacker.Name}");
+                    Defender.Attack(Attacker, Defender);
+                    Console.WriteLine($"Defender has {Attacker.Battallions.Count} units");
+                }
+                if (Defender.Battallions.Count <= 0)
+                {
+                    Console.WriteLine($"{Defender.Name} Loses.");
+                }
+                else if (Attacker.Battallions.Count <= 0)
+                {
+                    Console.WriteLine($"{Attacker.Name} Loses.");
+                }
+                Console.WriteLine("Battle is over");
+            }
         }
         class Battallion
         {
@@ -25,7 +124,6 @@
             {
                 this.Units = _Units;
                 this.Name = _name;
-                this.Atk = _Units.Atk * _Unit_amount;
                 this.Defense = _Units.Defense * _Unit_amount;
                 this.Health = _Units.Health * _Unit_amount;
                 this.Speed = _Units.Speed * _Unit_amount;
@@ -81,13 +179,18 @@
                 Console.WriteLine($"{Attacker.Name} does {damage} damage to {Defender.Name}");
                 if (Defender.Unit_amount > 1)
                 {
-                    Defender.Atk = Defender.Units.Atk;
                     Defender.Defense = Defender.Units.Defense;
                     Defender.Unit_amount -= damage/Defender.Units.Health;
                     Defender.Speed = Defender.Speed;
                 }
                 if (Defender.Health <= 0) { Defender.Unit_amount = 0; }
 
+            }
+            public int Calculate_attack()
+            {
+                int damage = Units.Calculate_attack();
+                damage *= Unit_amount;
+                return damage;
             }
         }
 
